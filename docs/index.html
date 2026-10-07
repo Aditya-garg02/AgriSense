@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgriSense · Crop & Yield Predictor</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f7ef;--card:#fff;--ink:#1d2b1f;--mute:#667a69;--g:#2f7d4f;--g2:#8cc63f;--line:#e2eadb;--sh:0 10px 30px rgba(31,80,50,.10)}
+:root[data-t=dark]{--bg:#0f1b14;--card:#172a1f;--ink:#e8f3e6;--mute:#93ab98;--g:#5ac08a;--g2:#b5e26a;--line:#25402f;--sh:0 10px 30px rgba(0,0,0,.4)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif;transition:.3s}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:0}
+.hero{background:linear-gradient(135deg,#1f5e3a,#3c9a5f 60%,#8cc63f);color:#fff;padding:26px 20px 90px;position:relative;overflow:hidden}
+.hero:after{content:"🌾";position:absolute;right:4%;top:10%;font-size:160px;opacity:.14;transform:rotate(12deg)}
+.wrap{max-width:1000px;margin:0 auto}
+nav{display:flex;justify-content:space-between;align-items:center;font-weight:600}
+button{font:inherit;cursor:pointer}
+.tg{background:rgba(255,255,255,.2);border:0;color:#fff;border-radius:99px;padding:6px 14px}
+.hero h1{font-size:clamp(30px,6vw,52px);font-weight:800;margin:34px 0 8px;max-width:640px;line-height:1.1}
+.hero p{max-width:540px;opacity:.92;margin:0}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.stats span{background:rgba(255,255,255,.18);padding:5px 12px;border-radius:99px;font-size:13px}
+main{margin-top:-60px;padding:0 16px 40px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{flex:1;padding:13px;border:0;border-radius:14px;background:var(--card);color:var(--mute);font-weight:600;box-shadow:var(--sh)}
+.tab.on{background:var(--g);color:#fff}
+.card{background:var(--card);border-radius:20px;padding:24px;box-shadow:var(--sh);margin-bottom:18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:26px}@media(max-width:780px){.grid{grid-template-columns:1fr}}
+label{display:block;font-size:13px;font-weight:600;color:var(--mute);margin:12px 0 5px}
+select,input[type=text],input[type=number]{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:11px;background:var(--bg);color:var(--ink);font:inherit}
+select:focus,input:focus{outline:2px solid var(--g2);border-color:transparent}
+.sl{display:flex;align-items:center;gap:10px}.sl input{flex:1;accent-color:var(--g)}.sl b{min-width:52px;text-align:right}
+.go{width:100%;margin-top:18px;padding:14px;border:0;border-radius:12px;background:linear-gradient(90deg,var(--g),#46a86c);color:#fff;font-weight:600;font-size:16px;transition:.2s}
+.go:hover{transform:translateY(-2px);filter:brightness(1.08)}.go:disabled{opacity:.5}
+.res{background:var(--bg);border-radius:16px;padding:22px;min-height:260px;display:flex;flex-direction:column;justify-content:center}
+.ph{text-align:center;color:var(--mute)}.big{font-family:Fraunces,serif;font-size:42px;font-weight:800;color:var(--g);line-height:1.1;text-transform:capitalize}
+.pop{animation:pop .45s ease}@keyframes pop{from{opacity:0;transform:scale(.94)}}
+.bar{margin:9px 0}.bar div:first-child{display:flex;justify-content:space-between;font-size:13px;text-transform:capitalize}
+.bar i{display:block;height:9px;border-radius:9px;background:var(--line);overflow:hidden;margin-top:4px}.bar i u{display:block;height:100%;background:linear-gradient(90deg,var(--g),var(--g2));border-radius:9px;transition:width .8s}
+.kv{display:flex;gap:12px;margin-top:14px}.kv div{flex:1;background:var(--card);border-radius:12px;padding:12px}.kv small{color:var(--mute);display:block}.kv b{font-size:19px}
+.hint{font-size:12px;color:var(--mute);margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}th{color:var(--mute)}
+.row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.lnk{background:none;border:0;color:var(--g);font-weight:600}
+footer{text-align:center;color:var(--mute);font-size:12px;padding-bottom:26px}
+.ld{position:fixed;inset:0;background:var(--bg);display:grid;place-items:center;z-index:9;transition:.4s;color:var(--mute)}
+</style>
+</head>
+<body>
+<div class="ld" id="ld">🌱 Loading ML models in your browser…</div>
+<header class="hero"><div class="wrap">
+  <nav><span>🌾 AgriSense</span><button class="tg" id="tg">🌙 Dark</button></nav>
+  <h1>Smarter farming decisions, powered by ML</h1>
+  <p>Get a crop recommendation for your soil and climate, or predict yield for any district in India. Runs fully in your browser.</p>
+  <div class="stats"><span>🌳 Random Forest</span><span>🌱 22 crops</span><span>📍 692 districts</span><span>⚡ No server</span></div>
+</div></header>
+
+<main><div class="wrap">
+<div class="tabs"><button class="tab on" data-p="pc">🌱 Crop Recommendation</button><button class="tab" data-p="py">📈 Yield Prediction</button></div>
+
+<section class="card grid" id="pc">
+  <div>
+    <h3>Your field conditions</h3>
+    <label>Soil type (auto-fills N, P, K, pH)</label><select id="soil"></select>
+    <div class="grid" style="gap:14px;grid-template-columns:1fr 1fr">
+      <div><label>State (optional)</label><select id="cs"></select></div>
+      <div><label>District (optional)</label><select id="cd"></select></div>
+    </div>
+    <div id="csl"></div>
+    <button class="go" id="gc">Recommend crop</button>
+  </div>
+  <div class="res" id="rc"><div class="ph">🌾<br>Set your conditions and press <b>Recommend crop</b></div></div>
+</section>
+
+<section class="card grid" id="py" hidden>
+  <div>
+    <h3>Farm details</h3>
+    <label>State</label><select id="ys"></select>
+    <label>District</label><input type="text" id="yd" list="dl" placeholder="Type or pick a district"><datalist id="dl"></datalist>
+    <label>Crop</label><select id="yc"></select>
+    <label>Season</label><select id="ysn"></select>
+    <label>Area (hectares)</label><input type="number" id="ya" value="10" min="0.1" step="any">
+    <button class="go" id="gy">Predict yield</button>
+  </div>
+  <div class="res" id="ry"><div class="ph">📈<br>Fill in the details and press <b>Predict yield</b></div></div>
+</section>
+
+<section class="card">
+  <div class="row"><h3>Prediction history</h3><button class="lnk" id="dl2">⬇ Download CSV</button></div>
+  <table><thead><tr><th>Time</th><th>Type</th><th>Input</th><th>Result</th></tr></thead><tbody id="hb"><tr><td colspan="4" style="color:var(--mute)">No predictions yet.</td></tr></tbody></table>
+</section>
+</div></main>
+<footer>Built with scikit-learn Random Forests, exported to run client-side · Predictions are estimates, not agronomic advice.</footer>
+
+<script>
+const $=id=>document.getElementById(id),SOIL={ALLUVIAL:[90,42,43,6.5],BLACK:[70,38,45,7.3],RED:[55,28,32,5.8],LATERITE:[40,22,28,5.2],DESERT:[25,15,18,8.1],MOUNTAIN:[65,35,38,6.2]};
+const SL=[["N","Nitrogen (N)",0,140,1],["P","Phosphorus (P)",5,145,1],["K","Potassium (K)",5,205,1],["T","Temperature °C",8,44,.5,26],["H","Humidity %",14,100,1,70],["PH","Soil pH",3.5,9.9,.1],["R","Rainfall mm/month",20,300,1,100]];
+const title=s=>s.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
+let META,CROP,YLD,hist=[];
+
+async function loadForest(u){const b=await (await fetch(u)).arrayBuffer(),hl=new DataView(b).getUint32(0,true),H=JSON.parse(new TextDecoder().decode(new Uint8Array(b,4,hl)));let o=4+hl;
+ const t=new Float32Array(b,o,H.n);o+=H.n*4;const r=new Int32Array(b,o,H.n);o+=H.n*4;const lv=new Float32Array(b,o,H.l);o+=H.l*4;const ro=new Int32Array(b,o,H.t);o+=H.t*4;
+ return{H,t,r,lv,ro,f:new Int16Array(b,o,H.n)}}
+function predCrop(m,x){const C=m.H.c,p=new Float64Array(C),{t,r,f,lv}=m;for(const s of m.ro){let n=s;while(f[n]!==-1)n=x[f[n]]<=t[n]?n+1:r[n];const k=r[n]*C;for(let i=0;i<C;i++)p[i]+=lv[k+i]}return Array.from(p,v=>v/m.ro.length)}
+function predYield(m,act,area){const{t,r,f}=m;let s=0;for(const st of m.ro){let n=st;while(f[n]!==-1)n=f[n]===790?(area<=t[n]?n+1:r[n]):(act.has(f[n])?r[n]:n+1);s+=t[n]}return s/m.ro.length}
+
+const opt=(el,arr,fn=x=>x)=>el.innerHTML=arr.map((v,i)=>`<option value="${i}">${fn(v)}</option>`).join("");
+function fillDistricts(){const rain=META.rain&&META.rain[$("cs").selectedOptions[0].dataset.u];
+ $("cd").innerHTML='<option value="">— any —</option>'+(rain?Object.keys(rain).map(d=>`<option>${d}</option>`).join(""):"");}
+function sync(){const st=$("ys").selectedOptions[0].dataset.u,ds=META.rain&&META.rain[st]?Object.keys(META.rain[st]):META.districts;$("dl").innerHTML=ds.map(d=>`<option value="${d}">`).join("")}
+function rainFor(){const s=$("cs").selectedOptions[0].dataset.u,d=$("cd").value;return META.rain&&META.rain[s]&&META.rain[s][d]}
+
+function render(id,html){$(id).innerHTML=html;$(id).firstElementChild.classList.add("pop")}
+function log(type,inp,res){hist.unshift([new Date().toLocaleTimeString(),type,inp,res]);hist=hist.slice(0,50);$("hb").innerHTML=hist.map(h=>`<tr>${h.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}
+
+async function init(){
+ try{[META,CROP,YLD]=await Promise.all([fetch("data/meta.json").then(r=>r.json()),loadForest("data/crop.bin"),loadForest("data/yield.bin")])}
+ catch(e){$("ld").innerHTML="⚠️ Could not load model files. Open this site through a web server or GitHub Pages (not by double-clicking the file).";return}
+ $("soil").innerHTML='<option value="">Custom</option>'+Object.keys(SOIL).map(k=>`<option>${k}</option>`).join("");
+ $("csl").innerHTML=SL.map(([id,l,mi,ma,st,d])=>`<label>${l}</label><div class="sl"><input type="range" id="s${id}" min="${mi}" max="${ma}" step="${st}" value="${d??(mi+ma)/2}"><b id="v${id}"></b></div>`).join("")+'<div class="hint" id="rh"></div>';
+ SL.forEach(([id])=>{const s=$("s"+id),v=$("v"+id);const u=()=>v.textContent=s.value;s.oninput=u;u()});
+ const sts=[...META.states];
+ for(const e of [$("cs"),$("ys")]) e.innerHTML=(e===$("cs")?'<option value="">— any —</option>':"")+sts.map((s,i)=>`<option value="${i}" data-u="${s.toUpperCase().trim()}">${s}</option>`).join("");
+ $("cs").innerHTML='<option data-u="">— any —</option>'+sts.map((s,i)=>`<option data-u="${s.toUpperCase().trim()}">${s}</option>`).join("");
+ opt($("yc"),META.ycrops,c=>c.trim());opt($("ysn"),META.seasons,s=>s.trim());
+ $("yc").value=META.ycrops.indexOf("Rice");$("ysn").value=1;
+ fillDistricts();sync();
+ $("cs").onchange=fillDistricts;$("ys").onchange=sync;
+ $("cd").onchange=()=>{const a=rainFor();if(a){const m=Math.min(300,Math.max(20,Math.round(a/12)));$("sR").value=m;$("vR").textContent=m;$("rh").textContent=`District annual rainfall ${a.toFixed(0)} mm → ≈ ${m} mm/month (the model was trained on monthly-scale rainfall).`}};
+ $("soil").onchange=e=>{const s=SOIL[e.target.value];if(!s)return;["N","P","K","PH"].forEach((k,i)=>{$("s"+k).value=s[i];$("v"+k).textContent=s[i]})};
+ $("ld").style.opacity=0;setTimeout(()=>$("ld").remove(),400);
+}
+$("gc").onclick=()=>{const x=Float32Array.from(["N","P","K","T","H","PH","R"].map(k=>+$("s"+k).value));
+ const p=predCrop(CROP,x),ix=p.map((v,i)=>i).sort((a,b)=>p[b]-p[a]).slice(0,3),nm=i=>title(META.crops_ml[i]);
+ render("rc",`<div><small style="color:var(--mute)">Best match</small><div class="big">${nm(ix[0])}</div><div class="hint">${(p[ix[0]]*100).toFixed(0)}% model confidence</div><div style="margin-top:14px">${ix.map(i=>`<div class="bar"><div><span>${nm(i)}</span><b>${(p[i]*100).toFixed(0)}%</b></div><i><u style="width:${p[i]*100}%"></u></i></div>`).join("")}</div></div>`);
+ log("Crop",`N${x[0]} P${x[1]} K${x[2]} ${x[3]}°C ${x[4]}% pH${x[5].toFixed(1)} ${x[6]}mm`,nm(ix[0]))};
+$("gy").onclick=()=>{const area=parseFloat($("ya").value);if(!(area>0))return render("ry",'<div class="ph">⚠️ Enter a valid area.</div>');
+ const dn=$("yd").value.trim().toUpperCase(),di=META.districts.indexOf(dn),act=new Set([+$("ys").value,37+di,729+ +$("yc").value,784+ +$("ysn").value]);if(di<0)act.delete(37+di);
+ const y=predYield(YLD,act,Math.fround(area)),c=META.ycrops[$("yc").value].trim(),s=META.seasons[$("ysn").value].trim();
+ render("ry",`<div><small style="color:var(--mute)">Predicted yield · ${c}, ${s}</small><div class="big">${y.toFixed(2)} <span style="font-size:18px">t/ha</span></div>
+ <div class="kv"><div><small>Total production</small><b>${(y*area).toLocaleString(undefined,{maximumFractionDigits:1})} t</b></div><div><small>Area</small><b>${area} ha</b></div></div>
+ ${di<0?'<div class="hint">⚠️ District not found in training data — prediction uses state, crop, season and area only.</div>':""}</div>`);
+ log("Yield",`${c} · ${s} · ${dn||"—"} · ${area} ha`,y.toFixed(2)+" t/ha")};
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===t));["pc","py"].forEach(p=>$(p).hidden=p!==t.dataset.p)});
+$("tg").onclick=()=>{const d=document.documentElement.dataset.t==="dark";document.documentElement.dataset.t=d?"":"dark";$("tg").textContent=d?"🌙 Dark":"☀️ Light"};
+$("dl2").onclick=()=>{const c="Time,Type,Input,Result\n"+hist.map(h=>h.map(v=>`"${v}"`).join(",")).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([c]));a.download="predictions.csv";a.click()};
+init();
+</script>
+</body>
+</html>
